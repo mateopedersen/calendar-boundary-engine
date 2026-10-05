@@ -42,7 +42,7 @@ jobs:
       - name: Type check
         run: deno check src/mod.ts tests/*.ts examples/*.ts benchmarks/*.ts
       - name: Tests
-        run: deno test --allow-none
+        run: deno test
       - name: Documentation lint
         run: deno doc --lint src/mod.ts
       - name: JSR publication dry run
