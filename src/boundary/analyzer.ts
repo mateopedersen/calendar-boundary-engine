@@ -5,7 +5,15 @@ import { isGregorianLeapYear } from "../gregorian/leap-year.ts";
 import { toIsoWeekDate } from "../iso-week/iso-week-date.ts";
 import type { CalendarBoundaryAnalysis } from "./types.ts";
 
-/** Analyze month, year, quarter, ISO-week, leap-day, and Julian offset transitions. */
+/**
+ * Compare two Gregorian dates across civil, ISO-week, leap-day, and Julian-offset boundaries.
+ *
+ * @param from First valid Gregorian date.
+ * @param to Second valid Gregorian date; it may be earlier, equal, or later than `from`.
+ * @returns Derived boundary facts, including a signed day delta and both endpoint week dates.
+ * @throws `RangeError` when either date is invalid or the ISO week-year is unsupported.
+ * @example Compare 2026-12-31 with 2027-01-01 to inspect New Year boundary flags.
+ */
 export function analyzeCalendarBoundary(from: CivilDate, to: CivilDate): CalendarBoundaryAnalysis {
   const dayDelta = daysBetween(from, to);
   const fromWeek = toIsoWeekDate(from);

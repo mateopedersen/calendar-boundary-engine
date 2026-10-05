@@ -11,7 +11,15 @@ export interface CutoverPolicy {
   readonly firstGregorianDate: CivilDate;
 }
 
-/** Create a cutover policy whose two dates are consecutive integer days. */
+/**
+ * Define a jurisdiction-specific transition from a final Julian label to a first Gregorian label.
+ *
+ * @param lastJulianDate Final label interpreted with Julian rules.
+ * @param firstGregorianDate First label interpreted with Gregorian rules.
+ * @returns Frozen policy after checking that the two labels describe consecutive integer days.
+ * @throws `RangeError` when labels are invalid, reversed, or not consecutive across systems.
+ * @example `createCutoverPolicy({year:1582,month:10,day:4}, {year:1582,month:10,day:15})`.
+ */
 export function createCutoverPolicy(
   lastJulianDate: JulianDate,
   firstGregorianDate: CivilDate,
@@ -32,7 +40,14 @@ export function createCutoverPolicy(
   });
 }
 
-/** Return whether a Gregorian-shaped date label is omitted by this cutover. */
+/**
+ * Check whether a Gregorian date label lies inside the omitted label interval.
+ *
+ * @param date Candidate Gregorian date label.
+ * @param policy Previously validated jurisdiction-specific cutover.
+ * @returns `true` strictly between the final Julian and first Gregorian labels.
+ * @throws `RangeError` when `date` is not a supported Gregorian date.
+ */
 export function isDateSkippedByCutover(date: CivilDate, policy: CutoverPolicy): boolean {
   assertDateFields(date);
   return compareCivilDateLabels(date, policy.lastJulianDate) > 0 &&
@@ -44,6 +59,11 @@ export function isDateSkippedByCutover(date: CivilDate, policy: CutoverPolicy): 
  *
  * Julian-side labels are converted by integer day number; Gregorian-side labels are returned
  * unchanged. A skipped label throws `RangeError`.
+ *
+ * @param date Supported Gregorian-shaped date label to interpret.
+ * @param policy Validated transition policy selecting Julian or Gregorian interpretation.
+ * @returns The proleptic Gregorian label representing the interpreted day.
+ * @throws `RangeError` when the label is skipped or the converted date is out of range.
  */
 export function convertAcrossCutover(date: CivilDate, policy: CutoverPolicy): CivilDate {
   assertDateFields(date);
@@ -54,7 +74,12 @@ export function convertAcrossCutover(date: CivilDate, policy: CutoverPolicy): Ci
   return isJulianSide ? julianToGregorian(date) : Object.freeze({ ...date });
 }
 
-/** The commonly cited 1582 cutover for example and testing; real adoption was jurisdiction-specific. */
+/**
+ * Example policy for the 1582 transition from Julian 1582-10-04 to Gregorian 1582-10-15.
+ *
+ * This is one historical transition example, not a universal adoption date or a jurisdiction
+ * database. Adoption dates varied across countries and communities.
+ */
 export const GREGORIAN_REFORM_1582: CutoverPolicy = createCutoverPolicy(
   { year: 1582, month: 10, day: 4 },
   { year: 1582, month: 10, day: 15 },

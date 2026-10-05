@@ -7,7 +7,14 @@ import {
 } from "../internal/calendar.ts";
 import type { MonthGrid, MonthGridCell, MonthGridOptions } from "./types.ts";
 
-/** Generate a 4–6 row or fixed 6-row month grid using integer calendar arithmetic. */
+/**
+ * Generate a presentation-neutral month grid using integer calendar arithmetic.
+ *
+ * @param options Target Gregorian month, weekday start, row mode, and adjacent-cell options.
+ * @returns Row-major cells with stable date, row, column, weekday, and month-offset metadata.
+ * @throws `RangeError` for invalid year, month, or week-start index.
+ * @example `createMonthGrid({ year: 2027, month: 1, fixedWeeks: true })` returns 42 cells.
+ */
 export function createMonthGrid(options: MonthGridOptions): MonthGrid {
   const { year, month } = options;
   const weekStartsOn = options.weekStartsOn ?? 1;

@@ -7,14 +7,28 @@ import {
   monthLength,
 } from "../internal/calendar.ts";
 
-/** Return the number of whole Gregorian days from `from` to `to` (signed). */
+/**
+ * Count Gregorian calendar days from one date to another.
+ *
+ * @param from Start date.
+ * @param to End date.
+ * @returns A signed integer: positive when `to` is later and negative when earlier.
+ */
 export function daysBetween(from: CivilDate, to: CivilDate): number {
   assertDateFields(from);
   assertDateFields(to);
   return gregorianToJdnUnchecked(to) - gregorianToJdnUnchecked(from);
 }
 
-/** Add an integer number of Gregorian days without creating a timestamp. */
+/**
+ * Add or subtract whole Gregorian calendar days.
+ *
+ * @param date Valid Gregorian starting date.
+ * @param amount Safe integer day count; negative values move backward.
+ * @returns A frozen date-only value.
+ * @throws `RangeError` for a non-integer amount or a result outside years 1 through 9999.
+ * @example `addDays({ year: 2026, month: 12, day: 31 }, 1)` returns 2027-01-01.
+ */
 export function addDays(date: CivilDate, amount: number): CivilDate {
   assertDateFields(date);
   if (!Number.isSafeInteger(amount)) throw new RangeError("day amount must be a safe integer");
@@ -23,7 +37,15 @@ export function addDays(date: CivilDate, amount: number): CivilDate {
   return Object.freeze(result);
 }
 
-/** Add months, clamping the day to the last day of the target month. */
+/**
+ * Add or subtract calendar months, clamping an unavailable day to month end.
+ *
+ * @param date Valid Gregorian starting date.
+ * @param amount Safe integer month count; negative values move backward.
+ * @returns A frozen date-only value with its original day preserved when possible.
+ * @throws `RangeError` for a non-integer amount or a result outside years 1 through 9999.
+ * @example `addMonths({ year: 2027, month: 1, day: 31 }, 1)` returns 2027-02-28.
+ */
 export function addMonths(date: CivilDate, amount: number): CivilDate {
   assertDateFields(date);
   if (!Number.isSafeInteger(amount)) throw new RangeError("month amount must be a safe integer");
@@ -36,7 +58,14 @@ export function addMonths(date: CivilDate, amount: number): CivilDate {
   return Object.freeze({ year, month, day: Math.min(date.day, monthLength(year, month, false)) });
 }
 
-/** Add years, clamping leap day to February 28 when the target year is common. */
+/**
+ * Add or subtract calendar years, clamping February 29 to February 28 in common years.
+ *
+ * @param date Valid Gregorian starting date.
+ * @param amount Safe integer year count; negative values move backward.
+ * @returns A frozen date-only value.
+ * @throws `RangeError` for a non-integer amount or a result outside years 1 through 9999.
+ */
 export function addYears(date: CivilDate, amount: number): CivilDate {
   assertDateFields(date);
   if (!Number.isSafeInteger(amount)) throw new RangeError("year amount must be a safe integer");

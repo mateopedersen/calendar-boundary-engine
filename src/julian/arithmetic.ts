@@ -6,7 +6,14 @@ import {
   julianToJdnUnchecked,
 } from "../internal/calendar.ts";
 
-/** Add an integer number of days under Julian calendar rules. */
+/**
+ * Add or subtract whole days using Julian calendar labels.
+ *
+ * @param date Valid Julian date label.
+ * @param amount Safe integer day count; negative values move backward.
+ * @returns A frozen Julian date label.
+ * @throws `RangeError` for invalid dates, non-integer amounts, or results outside years 1..9999.
+ */
 export function addJulianDays(date: JulianDate, amount: number): JulianDate {
   assertDateFields(date, true);
   if (!Number.isSafeInteger(amount)) throw new RangeError("day amount must be a safe integer");
@@ -15,7 +22,14 @@ export function addJulianDays(date: JulianDate, amount: number): JulianDate {
   return Object.freeze(result);
 }
 
-/** Return the signed whole-day difference from one Julian date label to another. */
+/**
+ * Count integer calendar days between Julian date labels.
+ *
+ * @param from Starting Julian date label.
+ * @param to Ending Julian date label.
+ * @returns Signed day count from `from` to `to`.
+ * @throws `RangeError` if either label is invalid under Julian rules.
+ */
 export function daysBetweenJulianDates(from: JulianDate, to: JulianDate): number {
   assertDateFields(from, true);
   assertDateFields(to, true);

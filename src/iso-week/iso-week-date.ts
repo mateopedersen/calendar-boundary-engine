@@ -29,7 +29,10 @@ function jan4Jdn(year: number): number {
 /**
  * Convert a Gregorian date to its ISO 8601 week date.
  *
- * Throws when the corresponding ISO week-year falls outside CE years 1 through 9999.
+ * @param date Valid Gregorian date.
+ * @returns ISO week-year, week number, and Monday-based weekday `1` through `7`.
+ * @throws `RangeError` when the date is invalid or the ISO week-year falls outside 1..9999.
+ * @example `toIsoWeekDate({ year: 2027, month: 1, day: 1 })` returns week 53 of 2026.
  */
 export function toIsoWeekDate(date: CivilDate): IsoWeekDate {
   assertDateFields(date);
@@ -46,9 +49,12 @@ export function toIsoWeekDate(date: CivilDate): IsoWeekDate {
 }
 
 /**
- * Convert an ISO week date to a Gregorian date after validating week and weekday.
+ * Convert an ISO week-year, week number, and weekday to a Gregorian date.
  *
- * Throws when the resulting Gregorian date is outside CE years 1 through 9999.
+ * @param value ISO week-year (1..9999), week (1..52 or 53), and weekday (Monday 1..Sunday 7).
+ * @returns Frozen Gregorian date for that ISO weekday.
+ * @throws `RangeError` when any field is invalid or the Gregorian result is outside years 1..9999.
+ * @example `fromIsoWeekDate({ weekYear: 2027, week: 1, weekday: 1 })` returns 2027-01-04.
  */
 export function fromIsoWeekDate(value: IsoWeekDate): CivilDate {
   if (!Number.isInteger(value.weekYear) || value.weekYear < 1 || value.weekYear > 9999) {
@@ -66,7 +72,13 @@ export function fromIsoWeekDate(value: IsoWeekDate): CivilDate {
   return Object.freeze(result);
 }
 
-/** Return 52 or 53, according to the ISO week-year rules. */
+/**
+ * Count ISO weeks in a Gregorian week-year.
+ *
+ * @param year CE week-year from 1 through 9999.
+ * @returns `52` or `53` according to the ISO Thursday rule.
+ * @throws `RangeError` for non-integer or out-of-range years.
+ */
 export function isoWeeksInYear(year: number): number {
   if (!Number.isInteger(year) || year < 1 || year > 9999) {
     throw new RangeError("year must be an integer from 1 through 9999");
@@ -76,7 +88,13 @@ export function isoWeeksInYear(year: number): number {
   return Math.floor((dec28 - mondayOfWeek(jan4Jdn(weekYear))) / 7) + 1;
 }
 
-/** Return the Monday at the start of the ISO week containing `date`. */
+/**
+ * Find the Monday beginning the ISO week containing a date.
+ *
+ * @param date Valid Gregorian date.
+ * @returns Frozen Gregorian Monday for that week.
+ * @throws `RangeError` when the input or Monday lies outside the supported range.
+ */
 export function startOfIsoWeek(date: CivilDate): CivilDate {
   assertDateFields(date);
   const result = jdnToGregorianUnchecked(mondayOfWeek(gregorianToJdnUnchecked(date)));
@@ -84,7 +102,13 @@ export function startOfIsoWeek(date: CivilDate): CivilDate {
   return Object.freeze(result);
 }
 
-/** Return the Sunday at the end of the ISO week containing `date`. */
+/**
+ * Find the Sunday ending the ISO week containing a date.
+ *
+ * @param date Valid Gregorian date.
+ * @returns Frozen Gregorian Sunday for that week.
+ * @throws `RangeError` when the input or Sunday lies outside the supported range.
+ */
 export function endOfIsoWeek(date: CivilDate): CivilDate {
   assertDateFields(date);
   const result = jdnToGregorianUnchecked(mondayOfWeek(gregorianToJdnUnchecked(date)) + 6);
